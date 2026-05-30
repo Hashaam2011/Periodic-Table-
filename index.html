@@ -92,12 +92,15 @@
             padding: 2rem;
         }
 
-        /* periodic table container */
+                /* periodic table container */
         .periodic-grid-wrapper {
             flex: 2.2;
             min-width: 280px;
             overflow-x: auto;
+            max-width: 100%;
+            display: block;
         }
+
 
         .periodic-grid {
             display: grid;
@@ -228,23 +231,40 @@
 
         /* responsive: on mobile, panel sits below */
         @media (max-width: 880px) {
-            body {
-                padding: 0.8rem;
-            }
-            .dashboard-dual {
-                flex-direction: column;
-            }
-            .periodic-grid {
-                grid-template-columns: repeat(18, minmax(52px, 60px));
-                gap: 4px;
-            }
-            .element-symbol {
-                font-size: 1rem;
-            }
-            .analysis-panel {
-                margin-top: 1rem;
-            }
-        } 
+    body {
+        padding: 0.5rem;
+    }
+    .dashboard-dual {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+    .periodic-grid-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.75rem;
+        -webkit-overflow-scrolling: touch; 
+    }
+    .periodic-grid {
+        grid-template-columns: repeat(18, 52px); 
+        gap: 4px;
+        width: max-content; 
+    }
+    .element-symbol {
+        font-size: 1rem;
+    }
+    .element-number {
+        font-size: 0.6rem;
+    }
+    .analysis-panel {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+    .panel-title {
+        font-size: 1.4rem;
+    }
+}
+
 
         /* specific glow for hover: will use box shadow per category but generic glow overlay */
         .element-card:hover {
