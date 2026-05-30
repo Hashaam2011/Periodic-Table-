@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>The Periodic Table of Biology | Elements of Life</title>
+    <meta name="description" content="An interactive periodic table showcasing the biological roles, abundance, and sources of chemical elements in living organisms. Explore core elements, macro-minerals, trace elements, and toxicity.">
+    <meta name="keywords" content="biology, periodic table, elements, life, carbon, oxygen, hydrogen, nitrogen, macro-minerals, trace elements, human body, biochemistry, interactive">
+    <meta name="author" content="BioVisuals">
+    <meta name="robots" content="index, follow">
+    <!-- Google Fonts & modern font stack -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0b0e14;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            color: #eef2ff;
+            line-height: 1.4;
+            padding: 1.5rem;
+        }
+
+        /* scientific container */
+        .app-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #0f1219;
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+            overflow: hidden;
+            backdrop-filter: blur(0px);
+        }
+
+        /* header & legend */
+        .science-header {
+            padding: 1.5rem 2rem 0.75rem 2rem;
+            border-bottom: 1px solid #232834;
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #9ab3d5 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .sub {
+            color: #8b92a8;
+            margin-top: 0.35rem;
+            font-size: 0.9rem;
+            border-left: 3px solid #2e9c8c;
+            padding-left: 0.75rem;
+        }
+
+        /* legend row */
+        .legend-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 1.25rem 0 0.75rem 0;
+            padding: 0.5rem 0;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+        }
+
+        /* dual layout: left grid + right panel */
+        .dashboard-dual {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.8rem;
+            padding: 2rem;
+        }
+
+        /* periodic table container */
+        .periodic-grid-wrapper {
+            flex: 2.2;
+            min-width: 280px;
+            overflow-x: auto;
+        }
+
+        .periodic-grid {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(58px, 72px));
+            gap: 6px;
+            justify-content: start;
+            background: transparent;
+        }
+
+        /* element card */
+        .element-card {
+            background: #151e28;
+            border-radius: 12px;
+            padding: 8px 4px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid #2a3240;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
+        }
+
+        .element-card:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+        }
+
+        /* hover glow matching category (set by JS inline border/shadow) but we also use dynamic */
+        .element-card {
+            transition: all 0.18s ease;
+        }
+
+        .element-symbol {
+            font-weight: 700;
+            font-size: 1.35rem;
+            letter-spacing: 0px;
+        }
+
+        .element-number {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #8e9aaf;
+        }
+
+        /* right analysis panel */
+        .analysis-panel {
+            flex: 1.2;
+            min-width: 280px;
+            background: rgba(18, 22, 32, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 1.8rem;
+            border: 1px solid #2a3142;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .panel-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            border-left: 4px solid #34b7a2;
+            padding-left: 1rem;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.3px;
+        }
+
+        .bio-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .detail-row {
+            background: #0f131c;
+            border-radius: 1rem;
+            padding: 0.8rem 1rem;
+            border-left: 3px solid #3e6b8c;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: #7d8fb3;
+            margin-bottom: 0.3rem;
+        }
+
+        .detail-value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #f0f4ff;
+            line-height: 1.4;
+        }
+
+        .element-badge {
+            display: inline-block;
+            background: #1f2a36;
+            border-radius: 40px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .deficiency-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .deficiency-list li {
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+
+        .deficiency-list li::before {
+            content: "•";
+            color: #e08e6d;
+        }
+
+        hr {
+            border-color: #2a3245;
+            margin: 0.5rem 0;
+        }
+
+        /* responsive: on mobile, panel sits below */
+        @media (max-width: 880px) {
+            body {
+                padding: 0.8rem;
+            }
+            .dashboard-dual {
+                flex-direction: column;
+            }
+            .periodic-grid {
+                grid-template-columns: repeat(18, minmax(52px, 60px));
+                gap: 4px;
+            }
+            .element-symbol {
+                font-size: 1rem;
+            }
+            .analysis-panel {
+                margin-top: 1rem;
+            }
+        }
+
+        /* specific glow for hover: will use box shadow per category but generic glow overlay */
+        .element-card:hover {
+            box-shadow: 0 0 0 2px rgba(255,255,200,0.3), 0 5px 12px rgba(0,0,0,0.3);
+        }
+
+        footer {
+            padding: 1rem 2rem 1.5rem;
+            font-size: 0.7rem;
+            text-align: center;
+            border-top: 1px solid #1e2532;
+            color: #5d6f8f;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <header class="science-header">
+        <h1>⚛️ THE PERIODIC TABLE OF BIOLOGY</h1>
+        <div class="sub">Elements of Life — from atomic blueprint to metabolic function</div>
+        <div class="legend-bar">
+            <div class="legend-item"><div class="legend-color" style="background: #2a9d8f;"></div><span>Core Elements of Life (C, H, N, O)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #3a86c8;"></div><span>Macro-Minerals (Ca, P, K, Mg, Na, S, Cl)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #e9b35f;"></div><span>Essential Trace Elements (Fe, Zn, Cu, Mn, Co, Mo, Se, I, Cr)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #cd5c5c;"></div><span>Non-Essential / Toxic (Pb, Hg, Cd, As)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #4a5568;"></div><span>Other / Minimal Role</span></div>
+        </div>
+    </header>
+
+    <main class="dashboard-dual">
+        <section class="periodic-grid-wrapper" aria-label="Interactive Periodic Table">
+            <div id="periodicGrid" class="periodic-grid"></div>
+        </section>
+
+        <aside class="analysis-panel" id="bioPanel">
+            <div class="panel-title" id="panelTitle">🔬 Biological Profile</div>
+            <div id="panelContent">
+                <!-- default intro / carbon later loaded -->
+                <div class="bio-detail">
+                    <div class="detail-row"><div class="detail-label">✨ Interactive Element</div><div class="detail-value">Click any element to explore its biological significance, human body percentage, dietary sources and deficiency effects.</div></div>
+                    <div class="detail-row"><div class="detail-label">🧬 Recommended start</div><div class="detail-value">Carbon (C) — the backbone of organic molecules.</div></div>
+                </div>
+            </div>
+        </aside>
+    </main>
+    <footer>
+        © BioPeriodic — data integrated from biochemical references. Hover glow, click deep profile.
+    </footer>
+</div>
+
+<script>
+    // ----------------------------------------------
+    // 1. BIOLOGICAL DATA PROFILES (detailed + generic)
+    // ----------------------------------------------
+    const detailedBioProfiles = {
+        // CORE ELEMENTS
+        "H": { fullName: "Hydrogen", symbol: "H", atomicNumber: 1, category: "Core Elements of Life", percentBody: "~9.5%", function: "Key component of water, organic molecules, and energy transfer (proton gradients).", sources: "Water, carbohydrates, fats, proteins.", deficiency: "Dehydration, metabolic acidosis; extremely rare as isolated deficiency." },
+        "C": { fullName: "Carbon", symbol: "C", atomicNumber: 6, category: "Core Elements of Life", percentBody: "~18.5%", function: "Backbone of all organic biomolecules (carbohydrates, lipids, proteins, nucleic acids).", sources: "Dietary carbohydrates, fats, proteins.", deficiency: "Energy deficit, weight loss, impaired growth." },
+        "N": { fullName: "Nitrogen", symbol: "N", atomicNumber: 7, category: "Core Elements of Life", percentBody: "~3.2%", function: "Essential component of amino acids, nucleotides, and neurotransmitters.", sources: "Proteins, legumes, meat, dairy.", deficiency: "Hypoproteinemia, muscle wasting, poor immune function." },
+        "O": { fullName: "Oxygen", symbol: "O", atomicNumber: 8, category: "Core Elements of Life", percentBody: "~65%", function: "Cellular respiration, electron acceptor in ATP synthesis, component of water.", sources: "Air, water, organic compounds.", deficiency: "Hypoxia, cellular damage, rapid death." },
+        // MACRO-MINERALS
+        "Na": { fullName: "Sodium", symbol: "Na", atomicNumber: 11, category: "Macro-Minerals", percentBody: "0.15%", function: "Nerve impulse transmission, fluid balance, muscle contraction.", sources: "Table salt, processed foods, vegetables.", deficiency: "Hyponatremia, confusion, muscle cramps." },
+        "Mg": { fullName: "Magnesium", symbol: "Mg", atomicNumber: 12, category: "Macro-Minerals", percentBody: "0.05%", function: "Cofactor for >300 enzymes, ATP binding, DNA stabilization.", sources: "Nuts, seeds, leafy greens, whole grains.", deficiency: "Muscle twitches, arrhythmias, fatigue." },
+        "P": { fullName: "Phosphorus", symbol: "P", atomicNumber: 15, category: "Macro-Minerals", percentBody: "1.0%", function: "Bone mineralization, ATP, DNA/RNA backbone, cell membrane phospholipids.", sources: "Dairy, meat, legumes, nuts.", deficiency: "Bone pain, rickets, muscle weakness." },
+        "S": { fullName: "Sulfur", symbol: "S", atomicNumber: 16, category: "Macro-Minerals", percentBody: "0.25%", function: "Component of methionine, cysteine, disulfide bridges in proteins, detoxification.", sources: "Eggs, meat, legumes, cruciferous vegetables.", deficiency: "Protein synthesis impairment, joint issues." },
+        "Cl": { fullName: "Chlorine", symbol: "Cl", atomicNumber: 17, category: "Macro-Minerals", percentBody: "0.15%", function: "Electrolyte balance, gastric acid (HCl), immune cell function.", sources: "Table salt, seaweed, vegetables.", deficiency: "Alkalosis, poor digestion, muscle cramps." },
+        "K": { fullName: "Potassium", symbol: "K", atomicNumber: 19, category: "Macro-Minerals", percentBody: "0.2%", function: "Membrane potential, heart function, nerve signaling, osmoregulation.", sources: "Bananas, potatoes, spinach, avocados.", deficiency: "Hypokalemia, arrhythmia, weakness." },
+        "Ca": { fullName: "Calcium", symbol: "Ca", atomicNumber: 20, category: "Macro-Minerals", percentBody: "1.5%", function: "Bone structure, muscle contraction, neurotransmitter release, blood clotting.", sources: "Dairy, leafy greens, fortified products.", deficiency: "Osteoporosis, tetany, dental issues." },
+        // ESSENTIAL TRACE ELEMENTS
+        "Mn": { fullName: "Manganese", symbol: "Mn", atomicNumber: 25, category: "Essential Trace Elements", percentBody: "0.0001% (12-20 mg)", function: "Cofactor for arginase, glutamine synthetase, antioxidant defense (Mn-SOD).", sources: "Whole grains, nuts, tea, leafy veg.", deficiency: "Impaired bone growth, glucose intolerance, dermatitis." },
+        "Fe": { fullName: "Iron", symbol: "Fe", atomicNumber: 26, category: "Essential Trace Elements", percentBody: "0.006%", function: "Hemoglobin, myoglobin, cytochromes (electron transport), oxygen transport.", sources: "Red meat, spinach, legumes, fortified cereals.", deficiency: "Anemia, fatigue, pallor, impaired cognition." },
+        "Co": { fullName: "Cobalt", symbol: "Co", atomicNumber: 27, category: "Essential Trace Elements", percentBody: "trace (~1 mg)", function: "Component of vitamin B12 (cobalamin), essential for RBC formation.", sources: "Meat, dairy, seafood, eggs.", deficiency: "Pernicious anemia, neuropathy, fatigue." },
+        "Ni": { fullName: "Nickel", symbol: "Ni", atomicNumber: 28, category: "Essential Trace Elements", percentBody: "0.000014%", function: "Cofactor for urease and some metalloenzymes; plant and bacterial role.", sources: "Nuts, chocolate, legumes, grains.", deficiency: "Rare, possibly altered iron metabolism." },
+        "Cu": { fullName: "Copper", symbol: "Cu", atomicNumber: 29, category: "Essential Trace Elements", percentBody: "0.0001%", function: "Cofactor for cytochrome c oxidase, superoxide dismutase, iron metabolism.", sources: "Shellfish, seeds, nuts, liver.", deficiency: "Anemia, neuropathy, bone abnormalities." },
+        "Zn": { fullName: "Zinc", symbol: "Zn", atomicNumber: 30, category: "Essential Trace Elements", percentBody: "0.0032%", function: "Catalytic & structural role in >300 enzymes, DNA synthesis, immune function.", sources: "Oysters, meat, pumpkin seeds, beans.", deficiency: "Growth retardation, hair loss, impaired immunity." },
+        "Se": { fullName: "Selenium", symbol: "Se", atomicNumber: 34, category: "Essential Trace Elements", percentBody: "0.000019%", function: "Antioxidant (glutathione peroxidase), thyroid hormone metabolism.", sources: "Brazil nuts, fish, eggs, sunflower seeds.", deficiency: "Keshan disease, infertility, muscle weakness." },
+        "Mo": { fullName: "Molybdenum", symbol: "Mo", atomicNumber: 42, category: "Essential Trace Elements", percentBody: "trace ~9 mg", function: "Cofactor for sulfite oxidase, xanthine oxidase, aldehyde oxidase.", sources: "Legumes, grains, leafy vegetables.", deficiency: "Sulfite toxicity, neurological issues (rare)." },
+        "I": { fullName: "Iodine", symbol: "I", atomicNumber: 53, category: "Essential Trace Elements", percentBody: "0.000014%", function: "Thyroid hormone (T3, T4) synthesis, metabolic regulation.", sources: "Iodized salt, seafood, dairy.", deficiency: "Goiter, hypothyroidism, cretinism." },
+        "Cr": { fullName: "Chromium", symbol: "Cr", atomicNumber: 24, category: "Essential Trace Elements", percentBody: "trace", function: "Enhances insulin sensitivity, glucose metabolism.", sources: "Broccoli, whole grains, meat.", deficiency: "Impaired glucose tolerance, weight changes." },
+        // Non-Essential / Toxic examples
+        "Pb": { fullName: "Lead", symbol: "Pb", atomicNumber: 82, category: "Non-Essential/Toxic", percentBody: "none (toxic)", function: "No biological function; neurotoxic, inhibits enzymes.", sources: "Contaminated water, old paint, soil.", deficiency: "Not applicable — toxic accumulation causes encephalopathy." },
+        "Hg": { fullName: "Mercury", symbol: "Hg", atomicNumber: 80, category: "Non-Essential/Toxic", percentBody: "toxic trace", function: "Binds to thiol groups; neurotoxic, kidney damage.", sources: "Seafood (methylmercury), dental amalgams.", deficiency: "N/A — chronic exposure causes neurological deficits." },
+        "Cd": { fullName: "Cadmium", symbol: "Cd", atomicNumber: 48, category: "Non-Essential/Toxic", percentBody: "none", function: "Carcinogen; replaces zinc in enzymes.", sources: "Cigarette smoke, contaminated vegetables.", deficiency: "Not essential; toxicity causes renal damage." },
+        "As": { fullName: "Arsenic", symbol: "As", atomicNumber: 33, category: "Non-Essential/Toxic", percentBody: "none", function: "No known benefit; inhibits ATP production.", sources: "Groundwater, rice, seafood (organic forms).", deficiency: "None — chronic exposure leads to skin lesions, cancer." }
+    };
+
+    // generic placeholder for others (biological minimal role)
+    const genericProfile = (symbol, name, atomic, cat = "Other / Minimal Role") => ({
+        fullName: name, symbol: symbol, atomicNumber: atomic, category: cat,
+        percentBody: "trace / non-essential", function: "Limited or no established biological role in humans; may have environmental or contextual importance.",
+        sources: "Varies, environmental exposure or diet traces.", deficiency: "Not applicable — no known deficiency syndrome."
+    });
+
+    // --------------------------------------------------------------
+    // 2. FULL PERIODIC TABLE LAYOUT (groups & periods for Z=1..86)
+    // --------------------------------------------------------------
+    const elementPositions = [
+        // Format: { symbol, atomicNum, name, period, group, defaultCategory? }
+        // We'll generate array with proper positions (precomputed major)
+    ];
+    // comprehensive manual mapping (covers biology + standard table)
+    const layoutData = [
+        [1,"H","Hydrogen",1,1], [2,"He","Helium",1,18],
+        [3,"Li","Lithium",2,1], [4,"Be","Beryllium",2,2], [5,"B","Boron",2,13], [6,"C","Carbon",2,14], [7,"N","Nitrogen",2,15], [8,"O","Oxygen",2,16], [9,"F","Fluorine",2,17], [10,"Ne","Neon",2,18],
+        [11,"Na","Sodium",3,1], [12,"Mg","Magnesium",3,2], [13,"Al","Aluminium",3,13], [14,"Si","Silicon",3,14], [15,"P","Phosphorus",3,15], [16,"S","Sulfur",3,16], [17,"Cl","Chlorine",3,17], [18,"Ar","Argon",3,18],
+        [19,"K","Potassium",4,1], [20,"Ca","Calcium",4,2], [21,"Sc","Scandium",4,3], [22,"Ti","Titanium",4,4], [23,"V","Vanadium",4,5], [24,"Cr","Chromium",4,6], [25,"Mn","Manganese",4,7], [26,"Fe","Iron",4,8], [27,"Co","Cobalt",4,9], [28,"Ni","Nickel",4,10],
+        [29,"Cu","Copper",4,11], [30,"Zn","Zinc",4,12], [31,"Ga","Gallium",4,13], [32,"Ge","Germanium",4,14], [33,"As","Arsenic",4,15], [34,"Se","Selenium",4,16], [35,"Br","Bromine",4,17], [36,"Kr","Krypton",4,18],
+        [37,"Rb","Rubidium",5,1], [38,"Sr","Strontium",5,2], [39,"Y","Yttrium",5,3], [40,"Zr","Zirconium",5,4], [41,"Nb","Niobium",5,5], [42,"Mo","Molybdenum",5,6], [43,"Tc","Technetium",5,7], [44,"Ru","Ruthenium",5,8], [45,"Rh","Rhodium",5,9], [46,"Pd","Palladium",5,10],
+        [47,"Ag","Silver",5,11], [48,"Cd","Cadmium",5,12], [49,"In","Indium",5,13], [50,"Sn","Tin",5,14], [51,"Sb","Antimony",5,15], [52,"Te","Tellurium",5,16], [53,"I","Iodine",5,17], [54,"Xe","Xenon",5,18],
+        [55,"Cs","Cesium",6,1], [56,"Ba","Barium",6,2], [57,"La","Lanthanum",6,3], [72,"Hf","Hafnium",6,4], [73,"Ta","Tantalum",6,5], [74,"W","Tungsten",6,6], [75,"Re","Rhenium",6,7], [76,"Os","Osmium",6,8], [77,"Ir","Iridium",6,9], [78,"Pt","Platinum",6,10],
+        [79,"Au","Gold",6,11], [80,"Hg","Mercury",6,12], [81,"Tl","Thallium",6,13], [82,"Pb","Lead",6,14], [83,"Bi","Bismuth",6,15], [84,"Po","Polonium",6,16], [85,"At","Astatine",6,17], [86,"Rn","Radon",6,18]
+    ];
+
+    const elementsMap = new Map(); // symbol -> object
+
+    // Build full elements list with profile and classification
+    for (let item of layoutData) {
+        let [atomic, sym, name, period, group] = item;
+        let profile = detailedBioProfiles[sym];
+        let category = profile ? profile.category : "Other / Minimal Role";
+        if (!profile && (sym === "Cr")) category = "Essential Trace Elements"; // Chromium bio essential added already in map
+        if (!profile && (sym === "V" || sym === "Ni")) category = "Essential Trace Elements";
+        if (!profile && (sym === "As" || sym === "Cd" || sym === "Hg" || sym === "Pb")) category = "Non-Essential/Toxic";
+        if (!profile && (sym === "Na" || sym === "Mg" || sym === "P" || sym === "S" || sym === "Cl" || sym === "K" || sym === "Ca")) category = "Macro-Minerals";
+        if (!profile && (sym === "C" || sym === "H" || sym === "N" || sym === "O")) category = "Core Elements of Life";
+        if (!profile && (sym === "Mn" || sym === "Fe" || sym === "Co" || sym === "Cu" || sym === "Zn" || sym === "Se" || sym === "Mo" || sym === "I")) category = "Essential Trace Elements";
+        
+        let finalProfile;
+        if (profile) {
+            finalProfile = { ...profile };
+        } else {
+            // generate generic from name/atomic
+            let genericCat = category;
+            finalProfile = genericProfile(sym, name, atomic, genericCat);
+        }
+        // ensure category field inside profile consistent
+        finalProfile.category = category;
+        finalProfile.atomicNumber = atomic;
+        finalProfile.fullName = finalProfile.fullName || name;
+        finalProfile.symbol = sym;
+        
+        elementsMap.set(sym, {
+            ...finalProfile,
+            period: period,
+            group: group,
+            atomic: atomic,
+            name: finalProfile.fullName
+        });
+    }
+    // additional standalone essential: Chromium already inside layout, but ensure its profile: if missing, add (already present in layout Z=24)
+    if (!detailedBioProfiles["Cr"] && elementsMap.has("Cr")) {
+        elementsMap.set("Cr", { ...genericProfile("Cr","Chromium",24,"Essential Trace Elements"), category:"Essential Trace Elements", fullName:"Chromium", percentBody:"trace", function:"Potentiates insulin action; involved in macronutrient metabolism", sources:"Broccoli, whole grains", deficiency:"Impaired glucose tolerance" });
+    }
+    // Ensure Nickel extra field etc also update extra readability
+    if (elementsMap.has("Ni") && !detailedBioProfiles["Ni"]) elementsMap.set("Ni",{...genericProfile("Ni","Nickel",28,"Essential Trace Elements"), percentBody:"trace", function:"Cofactor for certain microbial enzymes, possible role in iron absorption", sources:"Chocolate, nuts", deficiency:"Rare, altered metabolism"});
+    
+    // generate array for grid insertion
+    const periodicElementsArray = Array.from(elementsMap.values()).filter(el => el.period && el.group);
+    
+    // color mapping by category
+    function getCategoryColor(category) {
+        if (category === "Core Elements of Life") return "#2a9d8f";
+        if (category === "Macro-Minerals") return "#3a86c8";
+        if (category === "Essential Trace Elements") return "#e9b35f";
+        if (category === "Non-Essential/Toxic") return "#cd5c5c";
+        return "#4a5568";
+    }
+
+    // render grid
+    const gridContainer = document.getElementById("periodicGrid");
+    function buildGrid() {
+        gridContainer.innerHTML = "";
+        for (let elem of periodicElementsArray) {
+            const card = document.createElement("div");
+            card.className = "element-card";
+            const bgColor = getCategoryColor(elem.category);
+            card.style.backgroundColor = `${bgColor}20`;
+            card.style.borderTop = `2px solid ${bgColor}`;
+            card.style.borderBottom = `1px solid ${bgColor}40`;
+            card.style.transition = "all 0.2s";
+            card.innerHTML = `
+                <div class="element-number">${elem.atomicNumber}</div>
+                <div class="element-symbol">${elem.symbol}</div>
+                <div style="font-size:0.6rem; margin-top:2px; opacity:0.7">${elem.category === "Core Elements of Life" ? "⚡" : (elem.category === "Macro-Minerals" ? "🧂" : (elem.category === "Essential Trace Elements" ? "🔬" : ""))}</div>
+            `;
+            // set grid position
+            card.style.gridRow = elem.period;
+            card.style.gridColumn = elem.group;
+            card.addEventListener("click", (e) => {
+                e.stopPropagation();
+                updatePanel(elem);
+            });
+            // hover glow: add glow matching category
+            card.addEventListener("mouseenter", () => {
+                card.style.boxShadow = `0 0 0 2px ${bgColor}, 0 6px 12px rgba(0,0,0,0.3)`;
+            });
+            card.addEventListener("mouseleave", () => {
+                card.style.boxShadow = "";
+            });
+            gridContainer.appendChild(card);
+        }
+    }
+
+    function updatePanel(element) {
+        const panelContentDiv = document.getElementById("panelContent");
+        const panelTitleSpan = document.getElementById("panelTitle");
+        panelTitleSpan.innerHTML = `🧬 ${element.symbol} · ${element.fullName}`;
+        
+        const deficiencyText = element.deficiency && element.deficiency !== "Not applicable — no known deficiency syndrome." ? element.deficiency : (element.deficiency || "No well-defined deficiency in humans.");
+        const sourcesHtml = element.sources || "Varies by dietary intake or environmental exposure.";
+        
+        panelContentDiv.innerHTML = `
+            <div class="bio-detail">
+                <div class="detail-row"><div class="detail-label">⚛️ ATOMIC NUMBER</div><div class="detail-value">${element.atomicNumber}</div></div>
+                <div class="detail-row"><div class="detail-label">📊 BIOLOGICAL CATEGORY</div><div class="detail-value"><span class="element-badge">${element.category}</span></div></div>
+                <div class="detail-row"><div class="detail-label">🧪 % IN HUMAN BODY</div><div class="detail-value">${element.percentBody || "Trace / variable"}</div></div>
+                <div class="detail-row"><div class="detail-label">🧬 PRIMARY BIOLOGICAL FUNCTION</div><div class="detail-value">${element.function || "Essential structural or catalytic role."}</div></div>
+                <div class="detail-row"><div class="detail-label">🥬 DIETARY / NATURAL SOURCES</div><div class="detail-value">${sourcesHtml}</div></div>
+                <div class="detail-row"><div class="detail-label">⚠️ DEFICIENCY SYMPTOMS</div><div class="detail-value"><ul class="deficiency-list"><li>${deficiencyText.replace(/,/g, '</li><li>')}</li></ul></div></div>
+            </div>
+        `;
+    }
+
+    // default load carbon
+    function setDefaultPanel() {
+        const carbon = elementsMap.get("C");
+        if (carbon) updatePanel(carbon);
+        else {
+            const anyCore = periodicElementsArray.find(e => e.symbol === "C");
+            if(anyCore) updatePanel(anyCore);
+        }
+    }
+
+    buildGrid();
+    setDefaultPanel();
+</script>
+</body>
+</html>
